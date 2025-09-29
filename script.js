@@ -14,7 +14,7 @@ async function startAgent() {
   try {
     log("Łączenie z agentem...");
     // Utwórz konwersację i pobierz URL WebSocket
-    const convRes = await fetch(`https://api.elevenlabs.io/v1/agents/${AGENT_ID}/conversation`, {
+    const convRes = await fetch(`https://api.elevenlabs.io/v1/agents/${AGENT_ID}/conversations`, {
       method: "POST",
       headers: { "xi-api-key": ELEVEN_API_KEY }
     });
