@@ -1,25 +1,23 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8">
   <title>ElevenLabs LinkedIn Story Agent</title>
   <style>
     body { font-family: sans-serif; max-width: 700px; margin: 30px auto; }
-    #log { white-space: pre-wrap; background: #f8f8f8; padding: 10px; border-radius: 8px; min-height: 100px; margin-top: 15px;}
+    #log { white-space: pre-wrap; background: #f8f8f8; padding: 10px; border-radius: 8px; min-height: 120px; margin-top: 15px;}
     button { margin: 5px 0; padding: 6px 12px; }
   </style>
 </head>
 <body>
   <h1>🎙️ LinkedIn Story Agent</h1>
-  <p>Kliknij przycisk poniżej, aby rozpocząć rozmowę głosową z agentem ElevenLabs.</p>
-
-  <button onclick="startAgent()">▶️ Połącz i Rozpocznij</button>
-  <br><br>
+  <button onclick="startConversation()">▶️ Połącz i Rozpocznij</button><br><br>
   <input type="file" id="pdfInput" accept="application/pdf">
   <button onclick="uploadPDF()">⬆️ Wyślij PDF</button>
-
   <div id="log"></div>
 
+  <!-- SDK ElevenLabs z CDN -->
+  <script src="https://unpkg.com/@elevenlabs/client"></script>
   <script src="script.js"></script>
 </body>
 </html>
