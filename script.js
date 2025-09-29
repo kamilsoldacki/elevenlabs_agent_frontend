@@ -1,5 +1,5 @@
-const AGENT_ID = "WSTAW_TUTAJ_SWÓJ_AGENT_ID";
-const ELEVEN_API_KEY = "WSTAW_TUTAJ_SWÓJ_ELEVENLABS_API_KEY"; // tylko na hackathon
+const AGENT_ID = "agent_1401k6b4mb4ffeer00bhywzyzbf4";
+const ELEVEN_API_KEY = "sk_49ee18cb979d5e4bb21016743b831736b721cd245bb155c7"; // tylko na hackathon
 
 const logBox = document.getElementById("log");
 let ws;
