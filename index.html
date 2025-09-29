@@ -1,26 +1,51 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="utf-8">
-  <title>ElevenLabs LinkedIn Story Agent</title>
+  <meta charset="UTF-8">
+  <title>Puglia – ElevenLabs Mascot</title>
   <style>
-    body { font-family: sans-serif; max-width: 700px; margin: 30px auto; }
-    #log { white-space: pre-wrap; background: #f8f8f8; padding: 10px; border-radius: 8px; min-height: 120px; margin-top: 15px;}
-    button { margin: 5px 0; padding: 6px 12px; }
+    /* Ustawienia kolorów i tła */
+    body {
+      background-color: #f5f5dc; /* beżowe tło */
+      color: red; /* czerwona czcionka */
+      font-family: 'ElevenWaldenburg', sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Załaduj czcionkę */
+    @font-face {
+      font-family: 'ElevenWaldenburg';
+      src: url('Eleven-Waldenburg-Regular.otf') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    h1 {
+      margin-top: 40px;
+      font-size: 2.5rem;
+    }
+
+    p {
+      font-size: 1.2rem;
+      margin-bottom: 40px;
+    }
+
+    /* Widget w dolnym rogu */
+    elevenlabs-convai {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+    }
   </style>
 </head>
 <body>
-  <h1>🎙️ LinkedIn Story Agent</h1>
-  <button onclick="startConversation()">▶️ Połącz i Rozpocznij</button><br><br>
-  <input type="file" id="pdfInput" accept="application/pdf">
-  <button onclick="uploadPDF()">⬆️ Wyślij PDF</button>
-  <div id="log"></div>
+  <h1>Porozmawiaj z Puglia 🎉</h1>
+  <p>Kliknij w widget w prawym dolnym rogu i poznaj swoją zabawną historię!</p>
 
-  <!-- SDK ElevenLabs z CDN (wersja browserowa) -->
-  <script src="https://cdn.jsdelivr.net/npm/@elevenlabs/client/dist/browser/elevenlabs.min.js"></script>
-  <script>
-    window.ElevenLabs.initialize({ apiKey: "sk_49ee18cb979d5e4bb21016743b831736b721cd245bb155c7" });
-  </script>
-  <script src="script.js"></script>
+  <!-- Puglia widget -->
+  <elevenlabs-convai agent-id="agent_1401k6b4mb4ffeer00bhywzyzbf4"></elevenlabs-convai>
+  <script src="https://cdn.elevenlabs.io/convai-widget-v1.js"></script>
 </body>
 </html>
