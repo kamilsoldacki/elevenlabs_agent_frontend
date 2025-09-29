@@ -1,69 +1,36 @@
 const AGENT_ID = "agent_1401k6b4mb4ffeer00bhywzyzbf4";
-const ELEVEN_API_KEY = "sk_49ee18cb979d5e4bb21016743b831736b721cd245bb155c7"; // tylko na hackathon
+const ELEVEN_API_KEY = "sk_49ee18cb979d5e4bb21016743b831736b721cd245bb155c7"; // na hackathon OK
 
 const logBox = document.getElementById("log");
-let ws;
-let audioCtx;
 
 function log(msg) {
   logBox.textContent += "\n" + msg;
   logBox.scrollTop = logBox.scrollHeight;
 }
 
-async function startAgent() {
+let conversation;
+
+async function startConversation() {
   try {
     log("Łączenie z agentem...");
-    // Utwórz konwersację i pobierz URL WebSocket
-    const convRes = await fetch(`https://api.elevenlabs.io/v1/agents/${AGENT_ID}/conversations`, {
-      method: "POST",
-      headers: { "xi-api-key": ELEVEN_API_KEY }
-    });
-    const convData = await convRes.json();
-    if (!convData.websocket_url) {
-      log("Błąd tworzenia konwersacji: " + JSON.stringify(convData));
-      throw new Error("Brak websocket_url");
-    }
-    const wsUrl = convData.websocket_url;
-    log("URL WebSocket: " + wsUrl);
 
-    ws = new WebSocket(wsUrl);
-    ws.binaryType = "arraybuffer";
-
-    ws.onopen = async () => {
-      log("Połączono! Mów, aby rozpocząć rozmowę.");
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorder.ondataavailable = e => {
-        if (e.data.size > 0 && ws.readyState === WebSocket.OPEN) {
-          e.data.arrayBuffer().then(buf => ws.send(buf));
-        }
-      };
-      mediaRecorder.start(250);
-    };
-
-    ws.onmessage = (event) => {
-      if (typeof event.data !== "string") {
-        playAudio(event.data);
-      } else {
-        const msg = JSON.parse(event.data);
-        if (msg.type === "transcription") log("TY: " + msg.text);
-        if (msg.type === "response") log("AGENT: " + msg.text);
+    conversation = await window.ElevenLabs.Conversation.startSession({
+      agentId: AGENT_ID,
+      apiKey: ELEVEN_API_KEY,
+      connectionType: "websocket", // możesz też użyć "webrtc" dla ultra-niskich opóźnień
+      onTranscription: (msg) => log("TY: " + msg.text),
+      onResponse: (msg) => log("AGENT: " + msg.text),
+      onAudio: (audioBuffer) => {
+        // SDK samo odtwarza dźwięk, ale możemy np. logować zdarzenia
       }
-    };
+    });
 
-    ws.onclose = () => log("Rozłączono.");
+    await conversation.startMicrophone();
+    log("Połączono! Zacznij mówić 🚀");
+
   } catch (e) {
     log("Błąd połączenia: " + e.message);
   }
-}
-
-async function playAudio(buffer) {
-  if (!audioCtx) audioCtx = new AudioContext();
-  const audioBuffer = await audioCtx.decodeAudioData(buffer.slice(0));
-  const src = audioCtx.createBufferSource();
-  src.buffer = audioBuffer;
-  src.connect(audioCtx.destination);
-  src.start();
 }
 
 async function uploadPDF() {
