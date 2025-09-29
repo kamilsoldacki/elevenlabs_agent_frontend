@@ -4,44 +4,58 @@ const ELEVEN_API_KEY = "sk_49ee18cb979d5e4bb21016743b831736b721cd245bb155c7"; //
 const logBox = document.getElementById("log");
 let ws;
 let audioCtx;
-let source;
 
 function log(msg) {
   logBox.textContent += "\n" + msg;
   logBox.scrollTop = logBox.scrollHeight;
 }
 
+async function getSessionToken() {
+  const res = await fetch(`https://api.elevenlabs.io/v1/agents/${AGENT_ID}/session`, {
+    method: "POST",
+    headers: { "xi-api-key": ELEVEN_API_KEY }
+  });
+  const data = await res.json();
+  if (!data.client_secret) {
+    log("Błąd pobierania sesji: " + JSON.stringify(data));
+    throw new Error("Brak tokenu sesji");
+  }
+  return data.client_secret;
+}
+
 async function startAgent() {
-  if (ws) ws.close();
-  log("Łączenie z agentem...");
-  ws = new WebSocket(`wss://api.elevenlabs.io/v1/agents/${AGENT_ID}/stream?xi-api-key=${ELEVEN_API_KEY}`);
+  try {
+    log("Łączenie z agentem...");
+    const token = await getSessionToken();
+    ws = new WebSocket(`wss://api.elevenlabs.io/v1/agents/${AGENT_ID}/stream?client_secret=${token}`);
+    ws.binaryType = "arraybuffer";
 
-  ws.binaryType = "arraybuffer";
+    ws.onopen = async () => {
+      log("Połączono! Mów, aby rozpocząć rozmowę.");
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorder.ondataavailable = e => {
+        if (e.data.size > 0 && ws.readyState === WebSocket.OPEN) {
+          e.data.arrayBuffer().then(buf => ws.send(buf));
+        }
+      };
+      mediaRecorder.start(250);
+    };
 
-  ws.onopen = async () => {
-    log("Połączono! Rozpoczynamy rozmowę...");
-    // uzyskanie mikrofonu
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const mediaRecorder = new MediaRecorder(stream);
-    mediaRecorder.ondataavailable = e => {
-      if (e.data.size > 0 && ws.readyState === WebSocket.OPEN) {
-        e.data.arrayBuffer().then(buf => ws.send(buf));
+    ws.onmessage = (event) => {
+      if (typeof event.data !== "string") {
+        playAudio(event.data);
+      } else {
+        const msg = JSON.parse(event.data);
+        if (msg.type === "transcription") log("TY: " + msg.text);
+        if (msg.type === "response") log("AGENT: " + msg.text);
       }
     };
-    mediaRecorder.start(250);
-  };
 
-  ws.onmessage = (event) => {
-    if (typeof event.data !== "string") {
-      playAudio(event.data);
-    } else {
-      const msg = JSON.parse(event.data);
-      if (msg.type === "transcription") log("TY: " + msg.text);
-      if (msg.type === "response") log("AGENT: " + msg.text);
-    }
-  };
-
-  ws.onclose = () => log("Rozłączono.");
+    ws.onclose = () => log("Rozłączono.");
+  } catch (e) {
+    log("Błąd połączenia: " + e.message);
+  }
 }
 
 async function playAudio(buffer) {
