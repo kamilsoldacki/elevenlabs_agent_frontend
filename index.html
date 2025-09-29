@@ -16,8 +16,11 @@
   <button onclick="uploadPDF()">⬆️ Wyślij PDF</button>
   <div id="log"></div>
 
-  <!-- SDK ElevenLabs z CDN -->
-  <script src="https://unpkg.com/@elevenlabs/client"></script>
+  <!-- SDK ElevenLabs z CDN (wersja browserowa) -->
+  <script src="https://cdn.jsdelivr.net/npm/@elevenlabs/client/dist/browser/elevenlabs.min.js"></script>
+  <script>
+    window.ElevenLabs.initialize({ apiKey: "sk_49ee18cb979d5e4bb21016743b831736b721cd245bb155c7" });
+  </script>
   <script src="script.js"></script>
 </body>
 </html>
