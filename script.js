@@ -10,24 +10,23 @@ function log(msg) {
   logBox.scrollTop = logBox.scrollHeight;
 }
 
-async function getSessionToken() {
-  const res = await fetch(`https://api.elevenlabs.io/v1/agents/${AGENT_ID}/session`, {
-    method: "POST",
-    headers: { "xi-api-key": ELEVEN_API_KEY }
-  });
-  const data = await res.json();
-  if (!data.client_secret) {
-    log("Błąd pobierania sesji: " + JSON.stringify(data));
-    throw new Error("Brak tokenu sesji");
-  }
-  return data.client_secret;
-}
-
 async function startAgent() {
   try {
     log("Łączenie z agentem...");
-    const token = await getSessionToken();
-    ws = new WebSocket(`wss://api.elevenlabs.io/v1/agents/${AGENT_ID}/stream?client_secret=${token}`);
+    // Utwórz konwersację i pobierz URL WebSocket
+    const convRes = await fetch(`https://api.elevenlabs.io/v1/agents/${AGENT_ID}/conversation`, {
+      method: "POST",
+      headers: { "xi-api-key": ELEVEN_API_KEY }
+    });
+    const convData = await convRes.json();
+    if (!convData.websocket_url) {
+      log("Błąd tworzenia konwersacji: " + JSON.stringify(convData));
+      throw new Error("Brak websocket_url");
+    }
+    const wsUrl = convData.websocket_url;
+    log("URL WebSocket: " + wsUrl);
+
+    ws = new WebSocket(wsUrl);
     ws.binaryType = "arraybuffer";
 
     ws.onopen = async () => {
